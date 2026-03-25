@@ -247,21 +247,70 @@ source ~/ml-env/bin/activate
 cd /mnt/model-storage/research/NAMA_ANDA
 ```
 
-### Jalankan JupyterLab
+### Opsi Interface untuk Training
+
+#### Opsi 1 — Terminal SSH (paling ringan, direkomendasikan)
+Cocok untuk: menjalankan training script, monitoring, quick test.
 
 ```bash
-~/scripts/start-jupyter.sh
+# Connect ke server
+ssh ai-server
+
+# Aktifkan environment
+source ~/ml-env/bin/activate
+
+# Pindah ke folder kerja
+cd /mnt/model-storage/research/NAMA_ANDA
+
+# Jalankan script
+python3 train.py
+
+# Untuk training lama, gunakan screen agar tidak putus saat disconnect
+screen -S training
+python3 train.py
+# Ctrl+A lalu D untuk detach
+# screen -r training untuk reattach
 ```
 
-### Akses JupyterLab dari Laptop (SSH Tunnel)
+#### Opsi 2 — JupyterLab via browser
+Cocok untuk: eksplorasi data, prototyping, visualisasi hasil.
 
-Buka terminal **baru** di laptop Anda:
-
+Terminal 1 — buka tunnel (biarkan tetap berjalan):
 ```bash
 ssh -L 8888:localhost:8888 ai-server
 ```
 
-Kemudian buka di browser: `http://localhost:8888`
+Terminal 2 — jalankan JupyterLab di server:
+```bash
+ssh ai-server
+source ~/ml-env/bin/activate
+cd /mnt/model-storage/research/NAMA_ANDA
+jupyter lab --no-browser --port=8888 --ip=127.0.0.1
+```
+
+Buka browser: `http://localhost:8888`
+
+Pilih kernel: **Python (ml-env)**
+
+#### Opsi 3 — VS Code Remote SSH
+Bisa digunakan tapi **koneksi terasa lambat** karena semua traffic lewat Cloudflare tunnel. Lebih cocok digunakan saat berada di jaringan lokal yang sama dengan server (di kampus).
+
+Setup:
+1. Install extension **Remote - SSH** (Microsoft) di VS Code
+2. Pastikan `~/.ssh/config` sudah dikonfigurasi (lihat section SSH Access)
+3. `F1` → `Remote-SSH: Connect to Host` → `ai-server`
+4. Install extension **Jupyter** di remote
+5. Register kernel: `python -m ipykernel install --user --name=ml-env --display-name="Python (ml-env)"`
+
+**Catatan:** Jika VS Code Server belum terinstall otomatis, install manual:
+```bash
+wget -O vscode-server.tar.gz \
+  "https://update.code.visualstudio.com/commit:COMMIT_ID/server-linux-x64/stable"
+mkdir -p ~/.vscode-server/bin/COMMIT_ID
+tar -xzf vscode-server.tar.gz -C ~/.vscode-server/bin/COMMIT_ID --strip-components=1
+rm vscode-server.tar.gz
+```
+Ganti `COMMIT_ID` dengan versi VS Code yang digunakan (lihat di VS Code: `Help → About`).
 
 ### Contoh Training Sederhana (Fine-tuning dengan LoRA)
 
