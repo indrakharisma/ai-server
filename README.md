@@ -70,15 +70,16 @@ Seluruh penyimpanan data penelitian dan model berada di disk `/mnt/model-storage
 
 ```
 /mnt/model-storage/          (1.37 TB total)
-├── ollama/                  ← semua model LLM (dikelola otomatis oleh Ollama)
+├── ollama/                  ← model LLM (jangan diubah)
 │   └── models/
 │       ├── qwen3:14b        (~9 GB)
 │       └── qwen3:32b        (~19 GB)
 ├── research/                ← folder kerja mahasiswa
-│   ├── nama_mahasiswa_a/
-│   ├── nama_mahasiswa_b/
-│   └── ...
-└── datasets/                ← dataset publik yang bisa dishare
+│   └── nama_mahasiswa/
+│       ├── env-penelitian/  ← conda environment
+│       ├── notebooks/       ← jupyter notebooks
+│       └── datasets/        ← dataset pribadi
+└── datasets/                ← dataset publik (baca saja)
 ```
 
 **Aturan storage:**
@@ -229,24 +230,27 @@ source ~/ml-env/bin/activate
 Selain `ml-env` yang sudah tersedia, mahasiswa dapat membuat environment Conda sendiri di folder research masing-masing.
 
 ```bash
-# Buat environment baru (ganti NAMA_ANDA dan NAMA_ENV)
-conda create -p /mnt/model-storage/research/NAMA_ANDA/NAMA_ENV python=3.11 -y
+# Buat environment baru
+conda create -p /mnt/model-storage/research/NAMA_ANDA/env-penelitian python=3.11 -y
 
 # Aktifkan
-conda activate /mnt/model-storage/research/NAMA_ANDA/NAMA_ENV
+conda activate /mnt/model-storage/research/NAMA_ANDA/env-penelitian
 
-# Install packages
-conda install numpy pandas scikit-learn -y
+# Install packages contoh
 pip install torch --index-url https://download.pytorch.org/whl/cu128
+pip install transformers datasets scikit-learn pandas matplotlib
 
 # Deactivate
 conda deactivate
+
+# Lihat semua environment
+conda env list
 ```
 
 **Catatan:**
-- Environment disimpan di folder research masing-masing
-- Tidak perlu minta izin admin untuk buat environment baru
-- Gunakan `conda env list` untuk lihat semua environment
+- Environment disimpan di folder research masing-masing — tidak perlu izin admin
+- PyTorch install via `pip` (bukan `conda`) agar dapat versi CUDA yang benar
+- Gunakan `conda` untuk manage Python version, `pip` untuk packages ML
 
 ### Library yang Tersedia
 
