@@ -21,7 +21,8 @@ Server AI milik dosen untuk mendukung penelitian mahasiswa di bidang kecerdasan 
 8. [GPU Scheduler](#8-gpu-scheduler-ollama--training)
 9. [Cara Request Akses](#9-cara-request-akses)
 10. [Troubleshooting](#10-troubleshooting)
-11. [Kontak](#11-kontak)
+11. [Panduan Dosen — Manajemen Akses Mahasiswa](#11-panduan-dosen--manajemen-akses-mahasiswa)
+12. [Kontak](#12-kontak)
 
 ---
 
@@ -450,7 +451,86 @@ Akses server tidak bersifat publik. Mahasiswa yang membutuhkan akses harus menga
 
 ---
 
-## 11. Kontak
+## 11. Panduan Dosen — Manajemen Akses Mahasiswa
+
+### Memberikan akses ke mahasiswa baru
+
+```bash
+# Format: sudo add-student.sh <username> <nama_lengkap> <email>
+sudo add-student.sh billy "Billy Alexander" billy@email.com
+```
+
+Script otomatis akan:
+- Membuat user account
+- Generate password temporary
+- Membuat folder `/mnt/model-storage/research/<username>`
+- Setup conda di bashrc
+- Menampilkan info yang perlu dikirim ke mahasiswa
+
+### Informasi yang dikirim ke mahasiswa
+
+Setelah script selesai, kirim ke mahasiswa via WhatsApp/email:
+
+```
+Host     : ssh-ai.ebruar.my.id
+Username : <username>
+Password : <password dari output script>
+Docs     : https://github.com/indrakharisma/ai-server
+
+Password harus diganti saat login pertama.
+Baca dokumentasi sebelum mulai.
+```
+
+### Menonaktifkan akses mahasiswa (lulus/selesai penelitian)
+
+```bash
+# Lock account (data tetap aman)
+sudo usermod -L <username>
+
+# Atau hapus permanent (data ikut terhapus)
+sudo userdel -r <username>
+sudo rm -rf /mnt/model-storage/research/<username>
+```
+
+### Cek siapa saja yang aktif di server
+
+```bash
+# Lihat semua user yang ada
+cat /etc/passwd | grep /home | cut -d: -f1
+
+# Lihat user yang sedang login
+who
+
+# Lihat proses yang sedang berjalan per user
+ps aux | grep -v root | grep -v system
+```
+
+### Cek penggunaan storage per mahasiswa
+
+```bash
+du -sh /mnt/model-storage/research/*
+```
+
+### Reset password mahasiswa (lupa password)
+
+```bash
+sudo passwd <username>
+sudo chage -d 0 <username>  # force ganti password saat login berikutnya
+```
+
+### Monitoring GPU usage
+
+```bash
+# Lihat siapa yang pakai GPU
+nvidia-smi
+
+# Lihat proses detail
+nvidia-smi pmon -s u
+```
+
+---
+
+## 12. Kontak
 
 Untuk request akses, pertanyaan teknis, atau kendala penggunaan server:
 
