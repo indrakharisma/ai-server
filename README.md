@@ -224,6 +224,30 @@ Jika pertama kali login, `cloudflared` akan membuka browser untuk autentikasi Cl
 source ~/ml-env/bin/activate
 ```
 
+### Conda Environment
+
+Selain `ml-env` yang sudah tersedia, mahasiswa dapat membuat environment Conda sendiri di folder research masing-masing.
+
+```bash
+# Buat environment baru (ganti NAMA_ANDA dan NAMA_ENV)
+conda create -p /mnt/model-storage/research/NAMA_ANDA/NAMA_ENV python=3.11 -y
+
+# Aktifkan
+conda activate /mnt/model-storage/research/NAMA_ANDA/NAMA_ENV
+
+# Install packages
+conda install numpy pandas scikit-learn -y
+pip install torch --index-url https://download.pytorch.org/whl/cu128
+
+# Deactivate
+conda deactivate
+```
+
+**Catatan:**
+- Environment disimpan di folder research masing-masing
+- Tidak perlu minta izin admin untuk buat environment baru
+- Gunakan `conda env list` untuk lihat semua environment
+
 ### Library yang Tersedia
 
 | Library | Versi | Kegunaan |
