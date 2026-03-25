@@ -13,14 +13,15 @@ Server AI milik dosen untuk mendukung penelitian mahasiswa di bidang kecerdasan 
 
 1. [Overview](#1-overview)
 2. [Available Services](#2-available-services)
-3. [Akses Ollama API](#3-akses-ollama-api)
-4. [Available Models](#4-available-models)
-5. [ML Training Environment](#5-ml-training-environment)
-6. [Storage & Etika Penggunaan](#6-storage--etika-penggunaan)
-7. [GPU Scheduler](#7-gpu-scheduler-ollama--training)
-8. [Cara Request Akses](#8-cara-request-akses)
-9. [Troubleshooting](#9-troubleshooting)
-10. [Kontak](#10-kontak)
+3. [Storage Layout](#3-storage-layout)
+4. [Akses Ollama API](#4-akses-ollama-api)
+5. [Available Models](#5-available-models)
+6. [ML Training Environment](#6-ml-training-environment)
+7. [Storage & Etika Penggunaan](#7-storage--etika-penggunaan)
+8. [GPU Scheduler](#8-gpu-scheduler-ollama--training)
+9. [Cara Request Akses](#9-cara-request-akses)
+10. [Troubleshooting](#10-troubleshooting)
+11. [Kontak](#11-kontak)
 
 ---
 
@@ -63,7 +64,33 @@ Mahasiswa yang sedang mengerjakan penelitian (skripsi, tesis, atau proyek riset)
 
 ---
 
-## 3. Akses Ollama API
+## 3. Storage Layout
+
+Seluruh penyimpanan data penelitian dan model berada di disk `/mnt/model-storage` (2TB NVMe):
+
+```
+/mnt/model-storage/          (1.37 TB total)
+├── ollama/                  ← semua model LLM (dikelola otomatis oleh Ollama)
+│   └── models/
+│       ├── qwen3:14b        (~9 GB)
+│       └── qwen3:32b        (~19 GB)
+├── research/                ← folder kerja mahasiswa
+│   ├── nama_mahasiswa_a/
+│   ├── nama_mahasiswa_b/
+│   └── ...
+└── datasets/                ← dataset publik yang bisa dishare
+```
+
+**Aturan storage:**
+
+- Model LLM **hanya** boleh ada di `/mnt/model-storage/ollama` — jangan download model ke folder lain
+- Setiap mahasiswa **hanya** boleh menggunakan folder miliknya sendiri di `/mnt/model-storage/research/`
+- Dataset yang ingin dishare ke mahasiswa lain taruh di `/mnt/model-storage/datasets/`
+- Maksimal storage per mahasiswa: **50GB** (hubungi dosen jika butuh lebih)
+
+---
+
+## 4. Akses Ollama API
 
 Ollama API kompatibel dengan format OpenAI. Anda bisa menggunakannya langsung dari kode Python, curl, atau LangChain dalam penelitian.
 
@@ -133,7 +160,7 @@ default_headers={
 
 ---
 
-## 4. Available Models
+## 5. Available Models
 
 | Model | Ukuran | Kegunaan | Estimasi Speed |
 |-------|--------|----------|----------------|
@@ -152,7 +179,7 @@ curl https://ollama.ebruar.my.id/api/tags \
 
 ---
 
-## 5. ML Training Environment
+## 6. ML Training Environment
 
 Untuk training model (fine-tuning, transfer learning, dsb.), mahasiswa dapat mengakses GPU server secara langsung via SSH melalui tunnel Cloudflare.
 
@@ -191,20 +218,42 @@ ssh ai-server
 
 Jika pertama kali login, `cloudflared` akan membuka browser untuk autentikasi Cloudflare Access.
 
-### Setup Environment Training
+### Aktivasi Environment
 
 ```bash
-# Aktifkan virtual environment Python
 source ~/ml-env/bin/activate
-
-# Masuk ke folder penelitian Anda
-cd /mnt/model-storage/research/NAMA_MAHASISWA
-
-# Jalankan JupyterLab (tanpa membuka browser di server)
-jupyter lab --no-browser --port=8888
 ```
 
-### Forward JupyterLab ke Laptop
+### Library yang Tersedia
+
+| Library | Versi | Kegunaan |
+|---------|-------|----------|
+| PyTorch | 2.11.0+cu128 | Deep learning framework |
+| Transformers | 5.3.0 | Pre-trained models (HuggingFace) |
+| PEFT | 0.18.1 | Fine-tuning efisien (LoRA, QLoRA) |
+| TRL | 0.24.0 | Reinforcement learning dari feedback |
+| Accelerate | latest | Multi-GPU training |
+| Unsloth | latest | Fine-tuning LLM 2x lebih cepat |
+| scikit-learn | latest | Classical ML |
+| OpenCV | 4.13.0 | Computer vision |
+| Datasets | latest | HuggingFace datasets |
+| WandB | latest | Experiment tracking |
+| TensorBoard | latest | Training visualization |
+
+### Folder Kerja
+
+```bash
+# Ganti NAMA_ANDA dengan nama folder yang diberikan dosen
+cd /mnt/model-storage/research/NAMA_ANDA
+```
+
+### Jalankan JupyterLab
+
+```bash
+~/scripts/start-jupyter.sh
+```
+
+### Akses JupyterLab dari Laptop (SSH Tunnel)
 
 Buka terminal **baru** di laptop Anda:
 
@@ -212,25 +261,39 @@ Buka terminal **baru** di laptop Anda:
 ssh -L 8888:localhost:8888 ai-server
 ```
 
-Kemudian buka di browser:
+Kemudian buka di browser: `http://localhost:8888`
 
-```
-http://localhost:8888
+### Contoh Training Sederhana (Fine-tuning dengan LoRA)
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import LoraConfig, get_peft_model
+import torch
+
+model_name = "Qwen/Qwen2.5-1.5B"
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    torch_dtype=torch.float16,
+    device_map="cuda"
+)
+
+lora_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=["q_proj", "v_proj"],
+    lora_dropout=0.05,
+    task_type="CAUSAL_LM"
+)
+
+model = get_peft_model(model, lora_config)
+model.print_trainable_parameters()
 ```
 
 ---
 
-## 6. Storage & Etika Penggunaan
+## 7. Storage & Etika Penggunaan
 
-### Struktur Folder
-
-Setiap mahasiswa mendapatkan folder pribadi di:
-
-```
-/mnt/model-storage/research/NAMA_MAHASISWA/
-```
-
-Folder ini adalah ruang kerja Anda. Simpan dataset, checkpoint model, dan hasil eksperimen di sini.
+Setiap mahasiswa mendapatkan folder pribadi di `/mnt/model-storage/research/NAMA_MAHASISWA/`. Folder ini adalah ruang kerja Anda — simpan dataset, checkpoint model, dan hasil eksperimen di sini.
 
 ### Aturan Penggunaan
 
@@ -242,7 +305,7 @@ Folder ini adalah ruang kerja Anda. Simpan dataset, checkpoint model, dan hasil 
 
 ---
 
-## 7. GPU Scheduler (Ollama & Training)
+## 8. GPU Scheduler (Ollama & Training)
 
 GPU RTX 3090 digunakan secara bergantian antara **Ollama inference** dan **ML training**. Keduanya tidak bisa berjalan bersamaan secara optimal karena berbagi VRAM.
 
@@ -251,18 +314,25 @@ GPU RTX 3090 digunakan secara bergantian antara **Ollama inference** dan **ML tr
 | Ollama aktif | Model LLM di-load | Hingga 19GB terpakai |
 | Training aktif | Ollama di-unload manual | GPU bebas untuk training |
 
-### Cara Unload Model Ollama Sebelum Training
+### Cek Status GPU Sebelum Training
 
-Jika Anda akan memulai sesi training, unload model Ollama terlebih dahulu agar VRAM bebas:
+Jalankan perintah berikut setelah SSH ke server untuk memastikan GPU siap digunakan:
 
 ```bash
-# Unload qwen3:14b
+# Cek VRAM usage saat ini
+nvidia-smi
+
+# Cek apakah ada model Ollama yang sedang di-load
+curl http://localhost:11434/api/ps
+
+# Unload semua model Ollama sebelum training
+curl -X POST http://localhost:11434/api/generate \
+  -d '{"model": "qwen3:32b", "keep_alive": 0}'
 curl -X POST http://localhost:11434/api/generate \
   -d '{"model": "qwen3:14b", "keep_alive": 0}'
 
-# Unload qwen3:32b
-curl -X POST http://localhost:11434/api/generate \
-  -d '{"model": "qwen3:32b", "keep_alive": 0}'
+# Verifikasi VRAM sudah bebas
+nvidia-smi
 ```
 
 > Perintah di atas dijalankan **di dalam server** (setelah SSH), bukan dari laptop.
@@ -271,13 +341,13 @@ Setelah selesai training, Ollama akan otomatis me-load model kembali saat ada re
 
 ---
 
-## 8. Cara Request Akses
+## 9. Cara Request Akses
 
 Akses server tidak bersifat publik. Mahasiswa yang membutuhkan akses harus mengajukan permintaan ke dosen.
 
 **Langkah-langkah:**
 
-1. Kirim email ke dosen (lihat bagian [Kontak](#10-kontak))
+1. Kirim email ke dosen (lihat bagian [Kontak](#11-kontak))
 2. Sertakan informasi berikut di email:
    - Nama lengkap & NIM
    - Judul/topik penelitian
@@ -290,7 +360,7 @@ Akses server tidak bersifat publik. Mahasiswa yang membutuhkan akses harus menga
 
 ---
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 | Masalah | Kemungkinan Penyebab | Solusi |
 |---------|----------------------|--------|
@@ -303,7 +373,7 @@ Akses server tidak bersifat publik. Mahasiswa yang membutuhkan akses harus menga
 
 ---
 
-## 10. Kontak
+## 11. Kontak
 
 Untuk request akses, pertanyaan teknis, atau kendala penggunaan server:
 
