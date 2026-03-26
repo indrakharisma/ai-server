@@ -27,7 +27,7 @@
 
 ## 1. Tentang Server Ini
 
-Server ini adalah infrastruktur riset milik **Dr. Indra Kharisma Raharjana, S.Kom., M.T.** yang dikelola untuk mendukung mahasiswa bimbingan dan Research Group **Center for Artificial Intelligence and Information Systems (CAIS)**, Universitas Airlangga — dalam melakukan penelitian dan publikasi ilmiah di bidang kecerdasan buatan.
+Server ini adalah infrastruktur riset milik **Dr. Indra Kharisma Raharjana, S.Kom., M.T.** yang dikelola untuk mendukung mahasiswa bimbingan dan Research Group **Center for Artificial Intelligence and Information Systems (CAIS)**, Universitas Airlangga — dalam melakukan penelitian dan publikasi ilmiah di bidang rekayasa perangkat lunak dan kecerdasan buatan.
 
 GPU **NVIDIA RTX 3090 24GB VRAM** tersedia untuk training ML/AI dan inferensi LLM secara lokal — gratis, privat, tanpa biaya API cloud. Cocok untuk skripsi, tesis, maupun proyek riset yang butuh compute serius.
 
@@ -94,7 +94,9 @@ Sertakan di isi email:
 - Kebutuhan resource (LLM API / GPU training / keduanya)
 - Estimasi durasi penggunaan
 
-Akses akan diberikan dalam **1–2 hari kerja**. Dosen akan mengirimkan kredensial SSH dan Cloudflare Service Token.
+Akses akan diberikan dalam **1–2 hari kerja**. Dosen akan mengirimkan kredensial SSH dan Cloudflare Service Token (opsional).
+
+Namun baiknya, tetap hubungi saya secara langsung/personal setelah mengirim email agar syarat dan ketentuan bisa dikomunikasikan dan disepakati dengan baik, selain itu agar request bisa segera diproses.
 
 ---
 
@@ -620,7 +622,9 @@ Simpan ke password manager — file ini berisi semua secrets Coolify.
 
 **Dr. Indra Kharisma Raharjana, S.Kom., M.T.**
 Dosen Program Studi Sistem Informasi, Fakultas Sains dan Teknologi, Universitas Airlangga
+
 Ketua Center for Artificial Intelligence and Information Systems (CAIIS), Universitas Airlangga
+
 Editor-in-Chief — Journal of Information Systems Engineering and Business Intelligence (JISEBI)
 
 Email: [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id)
@@ -630,6 +634,6 @@ Email: [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id)
 ---
 
 <p align="center">
-  Dikelola oleh Research Group CAIS — Universitas Airlangga<br>
+  Dikelola oleh Research Group CAIIS — Universitas Airlangga<br>
   <sub>Infrastruktur ini disediakan untuk keperluan penelitian akademik.</sub>
 </p>
