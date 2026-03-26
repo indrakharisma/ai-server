@@ -454,7 +454,7 @@ sudo chage -d 0 <username>  # force ganti password saat login berikutnya
 **Dr. Indra Kharisma Raharjana, S.Kom., M.T.**
 Dosen Program Studi Sistem Informasi, Fakultas Sains dan Teknologi, Universitas Airlangga
 Ketua Center for Artificial Intelligence and Information Systems (CAIS), Universitas Airlangga
-Editor-in-Chief — Journal of Information Systems Engineering and Business Intelligence (JISEBI), Scopus Q3
+Editor-in-Chief — Journal of Information Systems Engineering and Business Intelligence (JISEBI)
 
 Email: [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id)
 
