@@ -2,41 +2,32 @@
 
 ![GPU](https://img.shields.io/badge/GPU-RTX%203090-76b900?style=flat-square&logo=nvidia)
 ![VRAM](https://img.shields.io/badge/VRAM-24GB-76b900?style=flat-square)
+![CUDA](https://img.shields.io/badge/CUDA-13.0-76b900?style=flat-square)
 ![Ollama](https://img.shields.io/badge/Ollama-Online-brightgreen?style=flat-square)
-![Models](https://img.shields.io/badge/Models-2%20tersedia-blue?style=flat-square)
-
-Server AI milik dosen untuk mendukung penelitian mahasiswa di bidang kecerdasan buatan dan pemrosesan bahasa alami.
+![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat-square&logo=python)
 
 ---
 
 ## Daftar Isi
 
-1. [Overview](#1-overview)
-2. [Available Services](#2-available-services)
-3. [Storage Layout](#3-storage-layout)
-4. [Akses Ollama API](#4-akses-ollama-api)
-5. [Available Models](#5-available-models)
+1. [Tentang Server Ini](#1-tentang-server-ini)
+2. [Layanan yang Tersedia](#2-layanan-yang-tersedia)
+3. [Model LLM Tersedia](#3-model-llm-tersedia)
+4. [Cara Request Akses](#4-cara-request-akses)
+5. [Mulai Menggunakan](#5-mulai-menggunakan)
 6. [ML Training Environment](#6-ml-training-environment)
-7. [Storage & Etika Penggunaan](#7-storage--etika-penggunaan)
-8. [GPU Scheduler](#8-gpu-scheduler-ollama--training)
-9. [Cara Request Akses](#9-cara-request-akses)
-10. [Troubleshooting](#10-troubleshooting)
-11. [Panduan Dosen — Manajemen Akses Mahasiswa](#11-panduan-dosen--manajemen-akses-mahasiswa)
-12. [Kontak](#12-kontak)
+7. [Storage Layout](#7-storage-layout)
+8. [Jadwal & Koordinasi GPU](#8-jadwal--koordinasi-gpu)
+9. [Panduan Dosen — Manajemen Akses Mahasiswa](#9-panduan-dosen--manajemen-akses-mahasiswa)
+10. [Kontak](#10-kontak)
 
 ---
 
-## 1. Overview
+## 1. Tentang Server Ini
 
-Repository ini mendokumentasikan infrastruktur AI Server yang disediakan untuk mendukung **penelitian mahasiswa** di bawah bimbingan dosen, khususnya di lingkungan Research Group **Center for Artificial Intelligence and Information Systems (CAIS)**, Universitas Airlangga.
+Server ini adalah infrastruktur riset milik **Dr. Indra Kharisma Raharjana, S.Kom., M.T.** yang dikelola untuk mendukung mahasiswa bimbingan dan Research Group **Center for Artificial Intelligence and Information Systems (CAIS)**, Universitas Airlangga — dalam melakukan penelitian dan publikasi ilmiah di bidang kecerdasan buatan.
 
-Server ini menyediakan:
-- **LLM Inference** via Ollama — untuk eksperimen NLP, chatbot, RAG, dan sejenisnya
-- **GPU Training** — untuk fine-tuning model atau training dari scratch
-- **Web Hosting** via Coolify — untuk deploy prototype atau aplikasi penelitian
-
-**Siapa yang boleh menggunakan?**
-Mahasiswa yang sedang mengerjakan penelitian (skripsi, tesis, atau proyek riset) di bawah bimbingan atau persetujuan Dr. Indra Kharisma Raharjana. Akses diberikan atas permintaan dan tidak bersifat publik.
+GPU **NVIDIA RTX 3090 24GB VRAM** tersedia untuk training ML/AI dan inferensi LLM secara lokal — gratis, privat, tanpa biaya API cloud. Cocok untuk skripsi, tesis, maupun proyek riset yang butuh compute serius.
 
 **Spesifikasi Server:**
 
@@ -47,58 +38,103 @@ Mahasiswa yang sedang mengerjakan penelitian (skripsi, tesis, atau proyek riset)
 | RAM | 64GB DDR5 |
 | GPU | NVIDIA RTX 3090 24GB VRAM |
 | Storage OS/VM | 512GB NVMe |
-| Storage Model | 2TB NVMe (1.37TB terpakai) |
+| Storage Data | 1TB NVMe |
 | OS (VM) | Ubuntu 24.04 LTS |
+
+**Profil riset dosen:**
+[ORCID](https://orcid.org/0000-0002-0622-3374) · [Scopus](https://www.scopus.com/authid/detail.uri?authorId=57202163318) · [SINTA](https://sinta.kemdiktisaintek.go.id/authors/profile/5980740) · [Google Scholar](https://scholar.google.com/citations?user=PaJeSJEAAAAJ)
 
 ---
 
-## 2. Available Services
+## 2. Layanan yang Tersedia
 
-| Service | URL | Fungsi | Akses |
-|---------|-----|--------|-------|
-| **Ollama** | [ollama.ebruar.my.id](https://ollama.ebruar.my.id) | LLM inference API (OpenAI-compatible) | Mahasiswa dengan Cloudflare token |
-| **Open WebUI** | [chat.ebruar.my.id](https://chat.ebruar.my.id) | Chat interface untuk berinteraksi dengan LLM | Mahasiswa dengan akun |
-| **Coolify** | [coolify.ebruar.my.id](https://coolify.ebruar.my.id) | Platform hosting aplikasi/prototype | Atas permintaan khusus |
-| **Carina** | [carina.ebruar.my.id](https://carina.ebruar.my.id) | JISEBI manuscript checker | Terbuka untuk pengguna JISEBI |
+| Layanan | URL | Fungsi |
+|---------|-----|--------|
+| **Ollama API** | [ollama.ebruar.my.id](https://ollama.ebruar.my.id) | LLM inference endpoint |
+| **Open WebUI** | [chat.ebruar.my.id](https://chat.ebruar.my.id) | Chat interface (minta akses ke dosen) |
+| **Carina** | [carina.ebruar.my.id](https://carina.ebruar.my.id) | JISEBI manuscript desk-review AI |
+| **Coolify** | [coolify.ebruar.my.id](https://coolify.ebruar.my.id) | Web hosting platform (admin only) |
 
 > Semua service dilindungi Cloudflare Access. Pastikan Anda memiliki **Cloudflare Service Token** yang diberikan dosen untuk mengakses Ollama API secara programatik.
 
 ---
 
-## 3. Storage Layout
+## 3. Model LLM Tersedia
 
-Seluruh penyimpanan data penelitian dan model berada di disk `/mnt/model-storage` (2TB NVMe):
+| Model | Ukuran | Kegunaan | Estimasi Speed |
+|-------|--------|----------|----------------|
+| `qwen3:14b` | ~9GB | General purpose, cepat — cocok untuk prototyping, eksperimen awal, dan iterasi cepat | ~50 tok/s |
+| `qwen3:32b` | ~19GB | Kualitas lebih baik — cocok untuk hasil akhir penelitian, evaluasi, atau task kompleks | ~22 tok/s |
 
+> Model akan terus diupdate sesuai kebutuhan. Cek ketersediaan sebelum digunakan atau tanyakan ke dosen.
+
+**Cek model yang tersedia:**
+
+```bash
+curl https://ollama.ebruar.my.id/api/tags \
+  -H "CF-Access-Client-Id: MINTA_KE_DOSEN" \
+  -H "CF-Access-Client-Secret: MINTA_KE_DOSEN"
 ```
-/mnt/model-storage/          (1.37 TB total)
-├── ollama/                  ← model LLM (jangan diubah)
-│   └── models/
-│       ├── qwen3:14b        (~9 GB)
-│       └── qwen3:32b        (~19 GB)
-├── research/                ← folder kerja mahasiswa
-│   └── nama_mahasiswa/
-│       ├── env-penelitian/  ← conda environment
-│       ├── notebooks/       ← jupyter notebooks
-│       └── datasets/        ← dataset pribadi
-└── datasets/                ← dataset publik (baca saja)
-```
-
-**Aturan storage:**
-
-- Model LLM **hanya** boleh ada di `/mnt/model-storage/ollama` — jangan download model ke folder lain
-- Setiap mahasiswa **hanya** boleh menggunakan folder miliknya sendiri di `/mnt/model-storage/research/`
-- Dataset yang ingin dishare ke mahasiswa lain taruh di `/mnt/model-storage/datasets/`
-- Maksimal storage per mahasiswa: **50GB** (hubungi dosen jika butuh lebih)
 
 ---
 
-## 4. Akses Ollama API
+## 4. Cara Request Akses
 
-Ollama API kompatibel dengan format OpenAI. Anda bisa menggunakannya langsung dari kode Python, curl, atau LangChain dalam penelitian.
+Akses server tidak bersifat publik. Kirim email ke **indra.kharisma@fst.unair.ac.id** dengan subject:
 
-> **Catatan:** Header `CF-Access-Client-Id` dan `CF-Access-Client-Secret` wajib disertakan di setiap request. Minta token ini ke dosen.
+```
+[AI Server] Request Akses - NAMA - NIM
+```
 
-### Via Python (OpenAI-compatible)
+Sertakan di isi email:
+- Nama lengkap & NIM
+- Judul / topik penelitian
+- Kebutuhan resource (LLM API / GPU training / keduanya)
+- Estimasi durasi penggunaan
+
+Akses akan diberikan dalam **1–2 hari kerja**. Dosen akan mengirimkan kredensial SSH dan Cloudflare Service Token.
+
+---
+
+## 5. Mulai Menggunakan
+
+### Akses SSH via Cloudflare
+
+**Install `cloudflared` di laptop:**
+
+```bash
+# macOS
+brew install cloudflare/cloudflare/cloudflared
+
+# Windows
+winget install Cloudflare.cloudflared
+
+# Linux — lihat: https://developers.cloudflare.com/cloudflared/get-started/
+```
+
+**Tambahkan ke SSH config:**
+
+- macOS / Linux: `~/.ssh/config`
+- Windows: `C:\Users\NAMA_ANDA\.ssh\config` (buat folder `.ssh` jika belum ada)
+
+```
+Host ai-server
+    HostName ssh-ai.ebruar.my.id
+    User USERNAME_KAMU
+    ProxyCommand cloudflared access ssh --hostname %h
+```
+
+**Connect:**
+
+```bash
+ssh ai-server
+```
+
+Jika pertama kali login, `cloudflared` akan membuka browser untuk autentikasi Cloudflare Access.
+
+---
+
+### Akses Ollama API dari kode Python
 
 ```python
 from openai import OpenAI
@@ -114,39 +150,12 @@ client = OpenAI(
 
 response = client.chat.completions.create(
     model="qwen3:14b",
-    messages=[{"role": "user", "content": "Hello"}]
+    messages=[{"role": "user", "content": "Halo!"}]
 )
 print(response.choices[0].message.content)
 ```
 
-### Via curl
-
-```bash
-curl https://ollama.ebruar.my.id/api/chat \
-  -H "CF-Access-Client-Id: MINTA_KE_DOSEN" \
-  -H "CF-Access-Client-Secret: MINTA_KE_DOSEN" \
-  -d '{"model": "qwen3:14b", "messages": [{"role": "user", "content": "Hello"}]}'
-```
-
-### Via LangChain
-
-```python
-from langchain_ollama import OllamaLLM
-
-llm = OllamaLLM(
-    model="qwen3:14b",
-    base_url="https://ollama.ebruar.my.id",
-    headers={
-        "CF-Access-Client-Id": "MINTA_KE_DOSEN",
-        "CF-Access-Client-Secret": "MINTA_KE_DOSEN"
-    }
-)
-
-response = llm.invoke("Jelaskan apa itu RAG dalam NLP.")
-print(response)
-```
-
-> **Tips keamanan:** Jangan hardcode token Anda langsung di kode. Gunakan environment variable atau file `.env` yang tidak di-commit ke GitHub.
+> **Tips keamanan:** Jangan hardcode token di kode. Gunakan environment variable atau file `.env` yang tidak di-commit ke GitHub.
 
 ```python
 import os
@@ -154,7 +163,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-default_headers={
+default_headers = {
     "CF-Access-Client-Id": os.getenv("CF_CLIENT_ID"),
     "CF-Access-Client-Secret": os.getenv("CF_CLIENT_SECRET")
 }
@@ -162,119 +171,65 @@ default_headers={
 
 ---
 
-## 5. Available Models
+### Tunnel Ollama ke lokal (untuk development)
 
-| Model | Ukuran | Kegunaan | Estimasi Speed |
-|-------|--------|----------|----------------|
-| `qwen3:14b` | ~9GB | General purpose, cepat — cocok untuk prototyping, eksperimen awal, dan iterasi cepat | ~50 tok/s |
-| `qwen3:32b` | ~19GB | Kualitas lebih baik — cocok untuk hasil akhir penelitian, evaluasi, atau task kompleks | ~22 tok/s |
-
-> `qwen3:32b` sedang dalam proses download. Cek ketersediaan sebelum digunakan atau tanyakan ke dosen.
-
-**Cek model yang tersedia:**
+Berguna jika ingin menggunakan Ollama seolah-olah berjalan di laptop sendiri.
 
 ```bash
-curl https://ollama.ebruar.my.id/api/tags \
-  -H "CF-Access-Client-Id: MINTA_KE_DOSEN" \
-  -H "CF-Access-Client-Secret: MINTA_KE_DOSEN"
+# Terminal 1 — biarkan tetap berjalan
+ssh -L 11434:localhost:11434 ai-server
+
+# Terminal 2 — gunakan di kode
+LOCAL_LLM_BASE_URL=http://localhost:11434/v1
 ```
 
 ---
 
 ## 6. ML Training Environment
 
-Untuk training model (fine-tuning, transfer learning, dsb.), mahasiswa dapat mengakses GPU server secara langsung via SSH melalui tunnel Cloudflare.
-
-### Prasyarat
-
-Install `cloudflared` di laptop Anda:
+### Aktivasi environment
 
 ```bash
-# macOS
-brew install cloudflare/cloudflare/cloudflared
-
-# Linux (Debian/Ubuntu)
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-sudo dpkg -i cloudflared-linux-amd64.deb
-
-# Windows — download installer dari:
-# https://github.com/cloudflare/cloudflared/releases/latest
-```
-
-### Konfigurasi SSH
-
-Tambahkan ke file `~/.ssh/config` di laptop Anda:
-
-```
-Host ai-server
-    HostName ssh-ai.ebruar.my.id
-    User aiserver
-    ProxyCommand cloudflared access ssh --hostname %h
-```
-
-### Koneksi SSH
-
-```bash
-ssh ai-server
-```
-
-Jika pertama kali login, `cloudflared` akan membuka browser untuk autentikasi Cloudflare Access.
-
-### Aktivasi Environment
-
-```bash
+# Gunakan ml-env yang sudah tersedia (PyTorch + semua library siap pakai)
 source ~/ml-env/bin/activate
+
+# Atau aktifkan conda environment milik sendiri
+conda activate /mnt/model-storage/research/NAMA_KAMU/env-penelitian
 ```
 
-### Conda Environment
+### Buat conda environment sendiri
 
-Selain `ml-env` yang sudah tersedia, mahasiswa dapat membuat environment Conda sendiri di folder research masing-masing.
+Mahasiswa dapat membuat environment sendiri tanpa perlu izin admin — cukup simpan di folder research masing-masing.
 
 ```bash
-# Buat environment baru
-conda create -p /mnt/model-storage/research/NAMA_ANDA/env-penelitian python=3.11 -y
+conda create -p /mnt/model-storage/research/NAMA_KAMU/env python=3.11 -y
+conda activate /mnt/model-storage/research/NAMA_KAMU/env
 
-# Aktifkan
-conda activate /mnt/model-storage/research/NAMA_ANDA/env-penelitian
-
-# Install packages contoh
+# Install PyTorch via pip agar dapat versi CUDA yang benar
 pip install torch --index-url https://download.pytorch.org/whl/cu128
 pip install transformers datasets scikit-learn pandas matplotlib
-
-# Deactivate
-conda deactivate
 
 # Lihat semua environment
 conda env list
 ```
 
-**Catatan:**
-- Environment disimpan di folder research masing-masing — tidak perlu izin admin
-- PyTorch install via `pip` (bukan `conda`) agar dapat versi CUDA yang benar
-- Gunakan `conda` untuk manage Python version, `pip` untuk packages ML
+> Gunakan `conda` untuk manage Python version, `pip` untuk packages ML.
 
-### Library yang Tersedia
-
-| Library | Versi | Kegunaan |
-|---------|-------|----------|
-| PyTorch | 2.11.0+cu128 | Deep learning framework |
-| Transformers | 5.3.0 | Pre-trained models (HuggingFace) |
-| PEFT | 0.18.1 | Fine-tuning efisien (LoRA, QLoRA) |
-| TRL | 0.24.0 | Reinforcement learning dari feedback |
-| Accelerate | latest | Multi-GPU training |
-| Unsloth | latest | Fine-tuning LLM 2x lebih cepat |
-| scikit-learn | latest | Classical ML |
-| OpenCV | 4.13.0 | Computer vision |
-| Datasets | latest | HuggingFace datasets |
-| WandB | latest | Experiment tracking |
-| TensorBoard | latest | Training visualization |
-
-### Folder Kerja
+### JupyterLab
 
 ```bash
-# Ganti NAMA_ANDA dengan nama folder yang diberikan dosen
-cd /mnt/model-storage/research/NAMA_ANDA
+# Di server (setelah SSH)
+source ~/ml-env/bin/activate
+jupyter lab --no-browser --port=8888 --ip=127.0.0.1
+
+# Di terminal laptop — buka tunnel
+ssh -L 8888:localhost:8888 ai-server
+
+# Buka di browser
+# http://localhost:8888
 ```
+
+Pilih kernel: **Python (ml-env)**
 
 ### Opsi Interface untuk Training
 
@@ -282,16 +237,10 @@ cd /mnt/model-storage/research/NAMA_ANDA
 Cocok untuk: menjalankan training script, monitoring, quick test.
 
 ```bash
-# Connect ke server
 ssh ai-server
-
-# Aktifkan environment
 source ~/ml-env/bin/activate
+cd /mnt/model-storage/research/NAMA_KAMU
 
-# Pindah ke folder kerja
-cd /mnt/model-storage/research/NAMA_ANDA
-
-# Jalankan script
 python3 train.py
 
 # Untuk training lama, gunakan screen agar tidak putus saat disconnect
@@ -302,24 +251,7 @@ python3 train.py
 ```
 
 #### Opsi 2 — JupyterLab via browser
-Cocok untuk: eksplorasi data, prototyping, visualisasi hasil.
-
-Terminal 1 — buka tunnel (biarkan tetap berjalan):
-```bash
-ssh -L 8888:localhost:8888 ai-server
-```
-
-Terminal 2 — jalankan JupyterLab di server:
-```bash
-ssh ai-server
-source ~/ml-env/bin/activate
-cd /mnt/model-storage/research/NAMA_ANDA
-jupyter lab --no-browser --port=8888 --ip=127.0.0.1
-```
-
-Buka browser: `http://localhost:8888`
-
-Pilih kernel: **Python (ml-env)**
+Cocok untuk: eksplorasi data, prototyping, visualisasi hasil. Lihat sub-section JupyterLab di atas.
 
 #### Opsi 3 — VS Code Remote SSH
 Bisa digunakan tapi **koneksi terasa lambat** karena semua traffic lewat Cloudflare tunnel. Lebih cocok digunakan saat berada di jaringan lokal yang sama dengan server (di kampus).
@@ -340,6 +272,23 @@ tar -xzf vscode-server.tar.gz -C ~/.vscode-server/bin/COMMIT_ID --strip-componen
 rm vscode-server.tar.gz
 ```
 Ganti `COMMIT_ID` dengan versi VS Code yang digunakan (lihat di VS Code: `Help → About`).
+
+### Library yang tersedia di ml-env
+
+| Library | Versi | Kegunaan |
+|---------|-------|----------|
+| PyTorch | 2.11.0+cu128 | Deep learning framework |
+| Transformers | 5.3.0 | Pre-trained models (HuggingFace) |
+| PEFT | 0.18.1 | Fine-tuning efisien (LoRA, QLoRA) |
+| TRL | 0.24.0 | Reinforcement learning dari feedback |
+| Accelerate | latest | Multi-GPU training |
+| Unsloth | latest | Fine-tuning LLM 2x lebih cepat |
+| scikit-learn | latest | Classical ML |
+| OpenCV | 4.13.0 | Computer vision |
+| Datasets | latest | HuggingFace datasets |
+| WandB | latest | Experiment tracking |
+| TensorBoard | latest | Training visualization |
+| JupyterLab | latest | Notebook interface |
 
 ### Contoh Training Sederhana (Fine-tuning dengan LoRA)
 
@@ -369,41 +318,56 @@ model.print_trainable_parameters()
 
 ---
 
-## 7. Storage & Etika Penggunaan
+## 7. Storage Layout
 
-Setiap mahasiswa mendapatkan folder pribadi di `/mnt/model-storage/research/NAMA_MAHASISWA/`. Folder ini adalah ruang kerja Anda — simpan dataset, checkpoint model, dan hasil eksperimen di sini.
+```
+/mnt/model-storage/          (1 TB)
+├── ollama/                  ← model LLM — JANGAN diubah manual
+├── research/
+│   └── nama_kamu/           ← folder kerjamu (maks 50 GB)
+│       ├── env/             ← conda environment
+│       └── notebooks/       ← jupyter notebooks
+└── datasets/                ← dataset publik (baca saja, minta dosen untuk tambah)
+```
 
-### Aturan Penggunaan
+**Aturan storage:**
 
-- **Jangan hapus atau modifikasi file milik mahasiswa lain** di luar folder Anda.
-- **Kuota storage per mahasiswa: 50GB.** Jika membutuhkan lebih, hubungi dosen terlebih dahulu.
-- **GPU bersifat shared.** Jika ada mahasiswa lain yang sedang training, koordinasikan jadwal agar tidak bentrok.
-- **Jangan menjalankan proses yang memakan seluruh VRAM (24GB)** tanpa koordinasi terlebih dahulu.
-- Hapus checkpoint model yang sudah tidak dibutuhkan untuk menjaga ketersediaan storage.
+- Model LLM **hanya** boleh ada di `/mnt/model-storage/ollama` — jangan download model ke folder lain
+- Setiap mahasiswa **hanya** boleh menggunakan folder miliknya sendiri
+- Dataset yang ingin dishare ke mahasiswa lain, minta dosen untuk taruh di `/mnt/model-storage/datasets/`
+- Maksimal storage per mahasiswa: **50GB** — hubungi dosen jika butuh lebih
+- Hapus checkpoint model yang sudah tidak dibutuhkan untuk menjaga ketersediaan storage
 
 ---
 
-## 8. GPU Scheduler (Ollama & Training)
+## 8. Jadwal & Koordinasi GPU
 
-GPU RTX 3090 digunakan secara bergantian antara **Ollama inference** dan **ML training**. Keduanya tidak bisa berjalan bersamaan secara optimal karena berbagi VRAM.
+GPU RTX 3090 digunakan bersama — harap koordinasi agar tidak bentrok.
 
 | Mode | Kondisi | VRAM |
 |------|---------|------|
 | Ollama aktif | Model LLM di-load | Hingga 19GB terpakai |
 | Training aktif | Ollama di-unload manual | GPU bebas untuk training |
 
-### Cek Status GPU Sebelum Training
+**Aturan penggunaan:**
 
-Jalankan perintah berikut setelah SSH ke server untuk memastikan GPU siap digunakan:
+- Cek dulu apakah ada yang sedang training: `nvidia-smi`
+- Kalau VRAM penuh, tanya dulu di grup WhatsApp sebelum mulai
+- Kalau mau training lama (>1 jam), kasih info di grup dulu
+- Jangan tinggalkan proses idle yang memakan VRAM
+
+> Minta link grup WhatsApp ke dosen saat request akses. Wajib gabung sebelum mulai menggunakan GPU untuk training.
+
+**Cek status GPU:**
 
 ```bash
-# Cek VRAM usage saat ini
-nvidia-smi
+nvidia-smi            # lihat VRAM usage dan proses aktif
+nvidia-smi pmon -s u  # lihat proses per user
+```
 
-# Cek apakah ada model Ollama yang sedang di-load
-curl http://localhost:11434/api/ps
+**Unload Ollama sebelum training besar:**
 
-# Unload semua model Ollama sebelum training
+```bash
 curl -X POST http://localhost:11434/api/generate \
   -d '{"model": "qwen3:32b", "keep_alive": 0}'
 curl -X POST http://localhost:11434/api/generate \
@@ -413,51 +377,28 @@ curl -X POST http://localhost:11434/api/generate \
 nvidia-smi
 ```
 
-> Perintah di atas dijalankan **di dalam server** (setelah SSH), bukan dari laptop.
-
 Setelah selesai training, Ollama akan otomatis me-load model kembali saat ada request berikutnya.
 
----
-
-## 9. Cara Request Akses
-
-Akses server tidak bersifat publik. Mahasiswa yang membutuhkan akses harus mengajukan permintaan ke dosen.
-
-**Langkah-langkah:**
-
-1. Kirim email ke dosen (lihat bagian [Kontak](#11-kontak))
-2. Sertakan informasi berikut di email:
-   - Nama lengkap & NIM
-   - Judul/topik penelitian
-   - Jenis akses yang dibutuhkan (API only / SSH training / keduanya)
-   - Estimasi kebutuhan resource (storage, durasi penggunaan GPU)
-3. Dosen akan memberikan:
-   - Akun SSH (jika diperlukan)
-   - **Cloudflare Service Token** (`CF-Access-Client-Id` & `CF-Access-Client-Secret`)
-   - Folder penelitian di server
-
----
-
-## 10. Troubleshooting
+**Troubleshooting umum:**
 
 | Masalah | Kemungkinan Penyebab | Solusi |
 |---------|----------------------|--------|
 | SSH timeout / tidak bisa konek | `cloudflared` belum login atau sesi expired | Jalankan `cloudflared access login ssh-ai.ebruar.my.id` lalu coba SSH lagi |
-| `CUDA out of memory` saat training | Model terlalu besar untuk sisa VRAM | Gunakan batch size lebih kecil, atau unload Ollama dulu, atau koordinasi waktu dengan mahasiswa lain |
-| Ollama tidak merespons / lambat | Model sedang di-unload atau ada training berjalan | Tunggu beberapa menit atau hubungi dosen untuk konfirmasi status server |
+| `CUDA out of memory` saat training | Model terlalu besar atau VRAM belum bebas | Unload Ollama dulu, kurangi batch size, atau koordinasi jadwal |
+| Ollama tidak merespons / lambat | Ada training yang sedang berjalan | Tunggu beberapa menit atau tanya di grup |
 | `401 Unauthorized` di API | Cloudflare Service Token salah atau expired | Minta token baru ke dosen |
-| JupyterLab tidak bisa dibuka | Port forwarding tidak aktif | Pastikan perintah `ssh -L 8888:localhost:8888 ai-server` sudah dijalankan di terminal terpisah |
-| Storage penuh | Melebihi kuota 50GB | Hapus file yang tidak dibutuhkan, atau hubungi dosen untuk penambahan kuota |
+| JupyterLab tidak bisa dibuka | Port forwarding tidak aktif | Pastikan `ssh -L 8888:localhost:8888 ai-server` sudah berjalan |
+| Storage penuh | Melebihi kuota 50GB | Hapus file yang tidak dibutuhkan, atau hubungi dosen |
 
 ---
 
-## 11. Panduan Dosen — Manajemen Akses Mahasiswa
+## 9. Panduan Dosen — Manajemen Akses Mahasiswa
 
-### Memberikan akses ke mahasiswa baru
+### Tambah mahasiswa baru
 
 ```bash
 # Format: sudo add-student.sh <username> <nama_lengkap> <email>
-sudo add-student.sh billy "Billy Alexander" billy@email.com
+sudo add-student.sh mhs "Mahasiswa Pejuang Skripsi" mhs@fst.unair.ac.id
 ```
 
 Script otomatis akan:
@@ -467,9 +408,7 @@ Script otomatis akan:
 - Setup conda di bashrc
 - Menampilkan info yang perlu dikirim ke mahasiswa
 
-### Informasi yang dikirim ke mahasiswa
-
-Setelah script selesai, kirim ke mahasiswa via WhatsApp/email:
+### Kirim info ke mahasiswa (output script)
 
 ```
 Host     : ssh-ai.ebruar.my.id
@@ -481,7 +420,7 @@ Password harus diganti saat login pertama.
 Baca dokumentasi sebelum mulai.
 ```
 
-### Menonaktifkan akses mahasiswa (lulus/selesai penelitian)
+### Nonaktifkan akses mahasiswa (lulus/selesai penelitian)
 
 ```bash
 # Lock account (data tetap aman)
@@ -492,23 +431,13 @@ sudo userdel -r <username>
 sudo rm -rf /mnt/model-storage/research/<username>
 ```
 
-### Cek siapa saja yang aktif di server
+### Monitoring
 
 ```bash
-# Lihat semua user yang ada
-cat /etc/passwd | grep /home | cut -d: -f1
-
-# Lihat user yang sedang login
-who
-
-# Lihat proses yang sedang berjalan per user
-ps aux | grep -v root | grep -v system
-```
-
-### Cek penggunaan storage per mahasiswa
-
-```bash
-du -sh /mnt/model-storage/research/*
+who                                         # siapa yang sedang login
+nvidia-smi pmon -s u                        # siapa yang pakai GPU
+du -sh /mnt/model-storage/research/*        # storage per mahasiswa
+cat /etc/passwd | grep /home | cut -d: -f1  # daftar semua user
 ```
 
 ### Reset password mahasiswa (lupa password)
@@ -518,27 +447,16 @@ sudo passwd <username>
 sudo chage -d 0 <username>  # force ganti password saat login berikutnya
 ```
 
-### Monitoring GPU usage
-
-```bash
-# Lihat siapa yang pakai GPU
-nvidia-smi
-
-# Lihat proses detail
-nvidia-smi pmon -s u
-```
-
 ---
 
-## 12. Kontak
+## 10. Kontak
 
-Untuk request akses, pertanyaan teknis, atau kendala penggunaan server:
+**Dr. Indra Kharisma Raharjana, S.Kom., M.T.**
+Dosen Program Studi Sistem Informasi, Fakultas Sains dan Teknologi, Universitas Airlangga
+Ketua Center for Artificial Intelligence and Information Systems (CAIS), Universitas Airlangga
+Editor-in-Chief — Journal of Information Systems Engineering and Business Intelligence (JISEBI), Scopus Q3
 
-**Dr. Indra Kharisma Raharjana**
-Ketua Research Group — Center for Artificial Intelligence and Information Systems (CAIS)
-Dosen Program Studi S1 Sistem Informasi, Universitas Airlangga
-
-📧 Email: [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id)
+Email: [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id)
 
 > Sertakan nama, NIM, dan keperluan Anda di email agar permintaan dapat diproses lebih cepat.
 
