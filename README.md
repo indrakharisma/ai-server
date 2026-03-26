@@ -621,6 +621,7 @@ Simpan ke password manager — file ini berisi semua secrets Coolify.
 ## 12. Kontak
 
 **Dr. Indra Kharisma Raharjana, S.Kom., M.T.**
+
 Dosen Program Studi Sistem Informasi, Fakultas Sains dan Teknologi, Universitas Airlangga
 
 Ketua Center for Artificial Intelligence and Information Systems (CAIIS), Universitas Airlangga
