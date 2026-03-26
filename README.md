@@ -19,7 +19,9 @@
 7. [Storage Layout](#7-storage-layout)
 8. [Jadwal & Koordinasi GPU](#8-jadwal--koordinasi-gpu)
 9. [Panduan Dosen — Manajemen Akses Mahasiswa](#9-panduan-dosen--manajemen-akses-mahasiswa)
-10. [Kontak](#10-kontak)
+10. [Mengelola Model Ollama](#10-mengelola-model-ollama)
+11. [Coolify — Web Hosting Platform](#11-coolify--web-hosting-platform)
+12. [Kontak](#12-kontak)
 
 ---
 
@@ -398,7 +400,7 @@ Setelah selesai training, Ollama akan otomatis me-load model kembali saat ada re
 
 ```bash
 # Format: sudo add-student.sh <username> <nama_lengkap> <email>
-sudo add-student.sh mhs "Mahasiswa Pejuang Skripsi" mhs@fst.unair.ac.id
+sudo add-student.sh nama_mhs "Nama Lengkap Mahasiswa" email_mhs@fst.unair.ac.id
 ```
 
 Script otomatis akan:
@@ -407,6 +409,12 @@ Script otomatis akan:
 - Membuat folder `/mnt/model-storage/research/<username>`
 - Setup conda di bashrc
 - Menampilkan info yang perlu dikirim ke mahasiswa
+
+Pastikan script sudah menyertakan baris berikut agar mahasiswa bisa menjalankan `docker exec` (untuk pull/rm model Ollama) tanpa sudo:
+
+```bash
+sudo usermod -aG docker $USERNAME
+```
 
 ### Kirim info ke mahasiswa (output script)
 
@@ -449,11 +457,170 @@ sudo chage -d 0 <username>  # force ganti password saat login berikutnya
 
 ---
 
-## 10. Kontak
+## 10. Mengelola Model Ollama
+
+### Lihat model yang tersedia
+
+```bash
+# Via terminal SSH
+docker exec -it ollama ollama list
+
+# Via API
+curl https://ollama.ebruar.my.id/api/tags \
+  -H "CF-Access-Client-Id: MINTA_KE_DOSEN" \
+  -H "CF-Access-Client-Secret: MINTA_KE_DOSEN"
+```
+
+### Pull model baru (mahasiswa boleh, wajib info dosen)
+
+**Langkah:**
+1. Cek model yang tersedia di https://ollama.com/library
+2. Cek dulu sisa storage: `df -h /mnt/model-storage`
+3. Beritahu dosen via WhatsApp sebelum pull — sertakan nama model dan ukurannya
+4. Pull model:
+
+```bash
+docker exec -it ollama ollama pull NAMA_MODEL
+# Contoh:
+docker exec -it ollama ollama pull qwen2.5-coder:32b
+```
+
+5. Verifikasi:
+
+```bash
+docker exec -it ollama ollama list
+```
+
+**Estimasi ukuran model:**
+
+| Ukuran Parameter | Ukuran File (Q4) | Keterangan |
+|-----------------|-----------------|------------|
+| 7B – 8B | ~5 GB | Ringan, cepat |
+| 14B | ~9 GB | Recommended untuk prototyping |
+| 32B | ~19 GB | Kualitas tinggi, muat di 24GB VRAM |
+| 70B+ | ~43 GB+ | Butuh semua VRAM, koordinasi ketat |
+
+**Perhatian:**
+- Jangan pull model 70B+ tanpa izin eksplisit dosen
+- Storage model tersedia ~1.37 TB — tetap koordinasi sebelum pull model besar
+
+> Model tidak perlu dihapus selama storage masih tersedia. Jika storage mulai penuh, dosen akan mengkoordinasikan model mana yang sudah tidak aktif digunakan untuk dibersihkan.
+
+### Panduan dosen — kelola model
+
+```bash
+# Lihat semua model dan ukurannya
+docker exec -it ollama ollama list
+
+# Cek sisa storage
+df -h /mnt/model-storage
+
+# Cek total storage yang dipakai Ollama
+du -sh /mnt/model-storage/ollama/
+```
+
+**Storage kritis = sisa < 200 GB**
+
+Estimasi kapasitas (total 1.37 TB):
+- ~30 model ukuran 14B
+- ~7 model ukuran 70B
+
+Prosedur cleanup saat storage kritis:
+
+```bash
+# 1. Cek model yang ada
+docker exec -it ollama ollama list
+
+# 2. Tanya mahasiswa via WhatsApp: model mana yang masih aktif dipakai
+# 3. Setelah konfirmasi, hapus model yang tidak dipakai
+docker exec -it ollama ollama rm NAMA_MODEL
+
+# 4. Verifikasi storage setelah cleanup
+df -h /mnt/model-storage
+```
+
+```bash
+# Update model ke versi terbaru
+docker exec -it ollama ollama pull NAMA_MODEL
+```
+
+---
+
+## 11. Coolify — Web Hosting Platform
+
+Coolify tersedia di [coolify.ebruar.my.id](https://coolify.ebruar.my.id) — **akses hanya untuk dosen/admin**.
+
+### Untuk mahasiswa — request deploy aplikasi
+
+Mahasiswa dapat request deploy aplikasi ke Coolify jika:
+- Aplikasi membutuhkan akses API LLM server
+- Aplikasi strategis untuk penelitian atau publikasi
+- Aplikasi perlu running 24/7 (bukan sekadar demo lokal)
+
+Kirim email ke [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id) dengan subject:
+
+```
+[Coolify Request] NAMA_APP - NAMA - NIM
+```
+
+Sertakan di isi email:
+- Nama aplikasi dan fungsinya
+- Link repository GitHub (wajib public atau tambahkan dosen sebagai collaborator)
+- Tech stack (Python / Node.js / dll)
+- Kebutuhan resource (RAM, storage)
+- Apakah butuh akses Ollama API? Model apa?
+- Relevansi dengan penelitian / publikasi
+
+Request akan diproses dalam **2–3 hari kerja**.
+
+### Panduan dosen — deploy di Coolify
+
+**Deploy aplikasi baru dari GitHub:**
+
+```
+Coolify Dashboard → New Resource → Public/Private Repository
+→ Pilih repo → Set branch → Pilih build pack (Dockerfile / Nixpacks)
+→ Set environment variables
+→ Set domain
+→ Deploy
+```
+
+**Environment variables untuk akses Ollama internal:**
+
+```
+OLLAMA_BASE_URL=http://192.168.88.237:11434/v1
+LLM_MODEL=qwen3:14b
+```
+
+**Kelola aplikasi yang sudah deploy:**
+
+```bash
+# Redeploy setelah push ke GitHub
+# Coolify → pilih app → Redeploy
+
+# Lihat logs
+# Coolify → pilih app → Logs
+
+# Update environment variable
+# Coolify → pilih app → Environment Variables → Save → Redeploy
+```
+
+**Backup environment variables:**
+
+```bash
+# Di Coolify VM — berisi semua secrets Coolify
+cat /data/coolify/source/.env
+```
+
+Simpan ke password manager — file ini berisi semua secrets Coolify.
+
+---
+
+## 12. Kontak
 
 **Dr. Indra Kharisma Raharjana, S.Kom., M.T.**
 Dosen Program Studi Sistem Informasi, Fakultas Sains dan Teknologi, Universitas Airlangga
-Ketua Center for Artificial Intelligence and Information Systems (CAIS), Universitas Airlangga
+Ketua Center for Artificial Intelligence and Information Systems (CAIIS), Universitas Airlangga
 Editor-in-Chief — Journal of Information Systems Engineering and Business Intelligence (JISEBI)
 
 Email: [indra.kharisma@fst.unair.ac.id](mailto:indra.kharisma@fst.unair.ac.id)
