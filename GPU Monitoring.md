@@ -122,12 +122,12 @@ cat /home/aiserver/logs/gpu_alert.log
 Contoh:
 ```
 [2026-04-03 11:30:01] GPU_UTIL=95% MEM=12000MiB
-[2026-04-03 11:30:01] PID=12345 USER=billy PROC=python MEM=8000 MiB
+[2026-04-03 11:30:01] PID=12345 USER=aiueo PROC=python MEM=8000 MiB
 ```
 
 Makna:
 - GPU digunakan berat (95%)
-- oleh user `billy`
+- oleh user `aiueo`
 - proses `python`
 - menggunakan 8GB VRAM
 
