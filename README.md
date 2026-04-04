@@ -52,9 +52,7 @@ GPU **NVIDIA RTX 3090 24GB VRAM** tersedia untuk training ML/AI dan inferensi LL
 
 | Layanan | URL | Fungsi |
 |---------|-----|--------|
-| **Ollama API** | [ollama.ebruar.my.id](https://ollama.ebruar.my.id) | LLM inference endpoint |
 | **Open WebUI** | [chat.ebruar.my.id](https://chat.ebruar.my.id) | Chat interface (minta akses ke dosen) |
-| **Carina** | [carina.ebruar.my.id](https://carina.ebruar.my.id) | JISEBI manuscript desk-review AI |
 | **Coolify** | [coolify.ebruar.my.id](https://coolify.ebruar.my.id) | Web hosting platform (admin only) |
 
 > Semua service dilindungi Cloudflare Access. Pastikan Anda memiliki **Cloudflare Service Token** yang diberikan dosen untuk mengakses Ollama API secara programatik.
